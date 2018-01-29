@@ -4,9 +4,9 @@
 
 #include "Engine/Engine.h"
 #include "UObject/ConstructorHelpers.h"
-#include "Blueprint/UserWidget.h"
 
-#include "Constants.h"
+#include "MenuSystem/MainMenu.h"
+
 #include "PlatformTrigger.h"
 
 
@@ -28,31 +28,17 @@ void UPuzzlePlatformsGameInstance::Init()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Menu class saved: %s"), *MainMenuBPClass.GetAssetName());
 
-	
-
-
 }
 
 
 void UPuzzlePlatformsGameInstance::LoadMainMenu()
 {
-	WBP_MainMenu = CreateWidget<UUserWidget>(this, MainMenuBPClass.Get());
+	WBP_MainMenu = CreateWidget<UMainMenu>(this, MainMenuBPClass.Get());
 	if (!ensure(WBP_MainMenu)) return;
 
-	WBP_MainMenu->AddToViewport();
+	WBP_MainMenu->SetMenuInterface(this);
 
-	UWorld* World = GetWorld();
-	if (!ensure(World)) return;
-
-	APlayerController* PC = GetFirstLocalPlayerController(World);
-	if (!ensure(PC)) return;
-
-	FInputModeUIOnly InputMode;
-	InputMode.SetWidgetToFocus(WBP_MainMenu->TakeWidget());
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-
-	PC->SetInputMode(InputMode);
-	PC->bShowMouseCursor = true;
+	WBP_MainMenu->Setup();
 }
 
 void UPuzzlePlatformsGameInstance::Host()

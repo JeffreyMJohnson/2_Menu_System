@@ -3,18 +3,21 @@
 #include "MainMenu.h"
 
 #include "Components/Button.h"
-
+#include "Components/WidgetSwitcher.h"
 
 
 bool UMainMenu::Initialize()
 {
 	if (!Super::Initialize()) return false;
 
-	if (!ensure(Host)) return false;
-	Host->OnClicked.AddDynamic(this, &UMainMenu::HandleHostOnClickEvent);
+	if (!ensure(HostButton)) return false;
+	HostButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
 
-	if (!ensure(Join)) return false;
-	Join->OnClicked.AddDynamic(this, &UMainMenu::HandleJoinOnClickEvent);
+	if (!ensure(JoinMenuButton)) return false;
+	JoinMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
+
+	if (!ensure(CancelButton)) return false;
+	CancelButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
 
 	return true;
 }
@@ -54,7 +57,7 @@ void UMainMenu::OnLevelRemovedFromWorld(ULevel * InLevel, UWorld * InWorld)
 	}
 }
 
-void UMainMenu::HandleHostOnClickEvent()
+void UMainMenu::HostServer()
 {
 	if (MenuInterface)
 	{
@@ -62,7 +65,18 @@ void UMainMenu::HandleHostOnClickEvent()
 	}
 }
 
-void UMainMenu::HandleJoinOnClickEvent()
+void UMainMenu::OpenJoinMenu()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Join button clicked..."));
+	if (!ensure(MenuSwitcher)) return;
+	if (!ensure(JoinMenu)) return;
+
+	MenuSwitcher->SetActiveWidget(JoinMenu);
+}
+
+void UMainMenu::OpenMainMenu()
+{
+	if (!ensure(MenuSwitcher)) return;
+	if (!ensure(MainMenu)) return;
+
+	MenuSwitcher->SetActiveWidget(MainMenu);
 }

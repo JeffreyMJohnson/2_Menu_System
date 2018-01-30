@@ -6,6 +6,7 @@
 #include "UObject/ConstructorHelpers.h"
 
 #include "MenuSystem/MainMenu.h"
+#include "MenuSystem/GameMenu.h"
 
 #include "PlatformTrigger.h"
 
@@ -14,34 +15,45 @@
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
-	/**/
-	MainMenuBPClassReference = TEXT("/Game/MenuSystem/WBP_MainMenu");
 	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuClass(*MainMenuBPClassReference);
 	if (!ensure(MainMenuClass.Class)) return;
 	MainMenuBPClass = MainMenuClass.Class;
-	
-	//UE_LOG(LogTemp, Warning, TEXT("Found class: %s"), *MainMenuBPClass.Class->GetName());
 
+	ConstructorHelpers::FClassFinder<UUserWidget> GameMenuClass(*GameMenuWBPClassReference);
+	if (!ensure(GameMenuClass.Class)) return;
+	GameMenuWBPClass = GameMenuClass.Class;
 }
+
 
 void UPuzzlePlatformsGameInstance::Init()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Menu class saved: %s"), *MainMenuBPClass.GetAssetName());
 
 }
 
-
 void UPuzzlePlatformsGameInstance::LoadMainMenu()
 {
+	
 	WBP_MainMenu = CreateWidget<UMainMenu>(this, MainMenuBPClass.Get());
 	if (!ensure(WBP_MainMenu)) return;
 
 	WBP_MainMenu->SetMenuInterface(this);
 
 	WBP_MainMenu->Setup();
+	/**/
 }
 
-void UPuzzlePlatformsGameInstance::Host()
+
+void UPuzzlePlatformsGameInstance::LoadGameMenu()
+{
+	WBP_GameMenu = CreateWidget<UGameMenu>(this, GameMenuWBPClass.Get());
+	if (!ensure(WBP_GameMenu)) return;
+
+	WBP_GameMenu->SetMenuInterface(this);
+
+	WBP_GameMenu->Setup();
+}
+
+void UPuzzlePlatformsGameInstance::HostGame()
 {
 	if (GEngine)
 	{
@@ -55,18 +67,30 @@ void UPuzzlePlatformsGameInstance::Host()
 		
 }
 
-void UPuzzlePlatformsGameInstance::Connect(FString Address)
+
+void UPuzzlePlatformsGameInstance::JoinGame(const FString& IPAddress)
 {
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Connecting to %s"), *Address));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Connecting to %s"), *IPAddress));
 
 		UWorld* World = GetWorld();
 		if (!ensure(World)) return;
 
 		if (APlayerController* PC = World->GetFirstPlayerController())
 		{
-			PC->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+			PC->ClientTravel(IPAddress, ETravelType::TRAVEL_Absolute);
 		}
+	}
+}
+
+void UPuzzlePlatformsGameInstance::ReturnToMainMenu()
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World)) return;
+
+	if (APlayerController* PC = World->GetFirstPlayerController())
+	{
+		PC->ClientTravel(MainMenuLevelTravelUrl, ETravelType::TRAVEL_Absolute);
 	}
 }

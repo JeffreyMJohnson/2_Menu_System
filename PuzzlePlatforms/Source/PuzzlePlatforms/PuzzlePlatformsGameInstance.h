@@ -20,25 +20,41 @@ class PUZZLEPLATFORMS_API UPuzzlePlatformsGameInstance : public UGameInstance, p
 public:
 	UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditDefaultsOnly)
-	FString MainMenuBPClassReference;
+	virtual void Init() override;
+
+	const FString& MainMenuBPClassReference = TEXT("/Game/MenuSystem/WBP_MainMenu");
+	const FString& GameMenuWBPClassReference = TEXT("/Game/MenuSystem/WBP_GameMenu");
+	const FString& MainMenuLevelTravelUrl = TEXT("/Game/MenuSystem/MainMenu.MainMenu");
 
 	UPROPERTY()
 	class UMainMenu* WBP_MainMenu;
 
-	virtual void Init() override;
+	UPROPERTY()
+	class UGameMenu* WBP_GameMenu;
 	
 	UFUNCTION(Exec, BlueprintCallable)
 	void LoadMainMenu();
+
+	UFUNCTION(Exec, BlueprintCallable)
+	void LoadGameMenu();
 	
+	// IMenuInterface implementation.
 	UFUNCTION(Exec)
-	virtual void Host() override;
+	virtual void HostGame() override;
 
 	UFUNCTION(Exec)
-	void Connect(FString Address);
+	virtual void JoinGame(const FString& IPAddress) override;
+
+	UFUNCTION(Exec)
+	virtual void ReturnToMainMenu();
 
 private:
 	UPROPERTY(EditDefaultsOnly)
 	TSoftClassPtr<UUserWidget> MainMenuBPClass;
+
+	UPROPERTY()
+	TSoftClassPtr<UUserWidget> GameMenuWBPClass;
+
+
 	
 };

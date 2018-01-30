@@ -12,4 +12,22 @@ APuzzlePlatformsGameMode::APuzzlePlatformsGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	//SetActorTickEnabled(true);
+}
+
+
+void APuzzlePlatformsGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+
+	/**/
+	UWorld* World = GetWorld();
+	if (!ensure(World)) return;
+
+	APlayerController* PC = World->GetFirstPlayerController();
+	if (!ensure(PC)) return;
+	
+
 }

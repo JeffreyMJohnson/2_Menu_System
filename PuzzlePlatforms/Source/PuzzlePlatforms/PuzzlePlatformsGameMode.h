@@ -13,6 +13,8 @@ class APuzzlePlatformsGameMode : public AGameModeBase
 
 public:
 	APuzzlePlatformsGameMode();
+
+	virtual void Tick(float DeltaSeconds) override;
 };
 
 

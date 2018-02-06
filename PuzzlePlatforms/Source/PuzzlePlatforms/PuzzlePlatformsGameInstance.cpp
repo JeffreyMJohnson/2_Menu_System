@@ -4,6 +4,7 @@
 
 #include "Engine/Engine.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Online.h"
 
 #include "MenuSystem/MainMenu.h"
 #include "MenuSystem/GameMenu.h"
@@ -33,6 +34,22 @@ void UPuzzlePlatformsGameInstance::Init()
 	
 	Engine->NetworkFailureEvent.AddUObject(this, &UPuzzlePlatformsGameInstance::NetworkError);
 
+	//OnlineSubSystemSteam = Cast<FOnlineSubsystemSteam>(IOnlineSubsystem::Get("Steam"));
+	IOnlineSubsystem* IOS = IOnlineSubsystem::Get();
+	FString result = IOS == nullptr ? TEXT("nullptr") : IOS->GetSubsystemName().ToString();
+	UE_LOG(LogTemp, Warning, TEXT("Online subsystem returned %s"), *result);
+	if (IOS)
+	{
+		auto SessionInterface = IOS->GetSessionInterface();
+		if (SessionInterface.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("session interface returned"));
+		}
+		
+	}
+
+	
+	
 }
 
 void UPuzzlePlatformsGameInstance::LoadMainMenu()

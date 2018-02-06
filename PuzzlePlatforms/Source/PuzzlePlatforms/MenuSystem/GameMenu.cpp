@@ -21,5 +21,7 @@ bool UGameMenu::Initialize()
 void UGameMenu::GoBackToMainMenu()
 {
 	if (!ensure(MenuInterface)) return;
+	TearDown();
+
 	MenuInterface->ReturnToMainMenu();
 }

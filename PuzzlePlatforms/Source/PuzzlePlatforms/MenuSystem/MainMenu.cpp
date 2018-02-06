@@ -22,6 +22,9 @@ bool UMainMenu::Initialize()
 	if (!ensure(JoinGameButton)) return false;
 	JoinGameButton->OnClicked.AddDynamic(this, &UMainMenu::JoinGame);
 
+	if (!ensure(ExitButton)) return false;
+	ExitButton->OnClicked.AddDynamic(this, &UMainMenu::ExitGame);
+
 	return true;
 }
 
@@ -55,5 +58,13 @@ void UMainMenu::JoinGame()
 	if (MenuInterface)
 	{
 		MenuInterface->JoinGame(IPAddressField->GetText().ToString());
+	}
+}
+
+void UMainMenu::ExitGame()
+{
+	if (MenuInterface)
+	{
+		MenuInterface->ExitGame();
 	}
 }

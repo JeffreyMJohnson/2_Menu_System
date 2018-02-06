@@ -22,11 +22,16 @@ UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitiali
 	ConstructorHelpers::FClassFinder<UUserWidget> GameMenuClass(*GameMenuWBPClassReference);
 	if (!ensure(GameMenuClass.Class)) return;
 	GameMenuWBPClass = GameMenuClass.Class;
+
 }
 
 
 void UPuzzlePlatformsGameInstance::Init()
 {
+	UEngine* Engine = GetEngine();
+	if (!ensure(Engine)) return;
+	
+	Engine->NetworkFailureEvent.AddUObject(this, &UPuzzlePlatformsGameInstance::NetworkError);
 
 }
 
@@ -51,6 +56,16 @@ void UPuzzlePlatformsGameInstance::LoadGameMenu()
 	WBP_GameMenu->SetMenuInterface(this);
 
 	WBP_GameMenu->Setup();
+}
+
+
+void UPuzzlePlatformsGameInstance::DestroyGameMenu()
+{
+	if (WBP_GameMenu)
+	{
+		WBP_GameMenu->TearDown();
+		WBP_GameMenu = nullptr;
+	}
 }
 
 void UPuzzlePlatformsGameInstance::HostGame()
@@ -94,3 +109,21 @@ void UPuzzlePlatformsGameInstance::ReturnToMainMenu()
 		PC->ClientTravel(MainMenuLevelTravelUrl, ETravelType::TRAVEL_Absolute);
 	}
 }
+
+void UPuzzlePlatformsGameInstance::NetworkError(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
+{
+	ReturnToMainMenu();
+}
+
+void UPuzzlePlatformsGameInstance::ExitGame()
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World)) return;
+
+	if (APlayerController* PC = World->GetFirstPlayerController())
+	{
+		PC->ConsoleCommand(TEXT("Quit"));
+	}
+}
+
+

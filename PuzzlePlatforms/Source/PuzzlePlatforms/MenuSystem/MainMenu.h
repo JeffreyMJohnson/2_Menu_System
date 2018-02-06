@@ -3,9 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MenuSystem/BaseMenu.h"
 
-#include "MenuInterface.h"
+#include "MenuSystem/BaseMenu.h"
 
 #include "MainMenu.generated.h"
 
@@ -31,6 +30,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* JoinGameButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	UButton* ExitButton;
 
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher;
@@ -55,5 +57,8 @@ private:
 
 	UFUNCTION()
 	void JoinGame();
+
+	UFUNCTION()
+	void ExitGame();
 	
 };

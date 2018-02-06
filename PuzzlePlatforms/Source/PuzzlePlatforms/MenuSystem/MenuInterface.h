@@ -27,4 +27,6 @@ public:
 
 	virtual void ReturnToMainMenu() = 0;
 	
+	virtual void ExitGame() = 0;
+
 };

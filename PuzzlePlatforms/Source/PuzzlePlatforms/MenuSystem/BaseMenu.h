@@ -21,10 +21,10 @@ public:
 	void SetMenuInterface(IMenuInterface* MenuInterfaceIn) { MenuInterface = MenuInterfaceIn; }
 
 	UFUNCTION()
-		virtual void Setup();
+	void Setup();
 
 	UFUNCTION()
-		virtual void TearDown();
+	void TearDown();
 
 protected:
 	virtual void OnLevelRemovedFromWorld(ULevel * InLevel, UWorld * InWorld) override;

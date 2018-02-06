@@ -3,9 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MenuSystem/BaseMenu.h"
 
-#include "MenuInterface.h"
+#include "MenuSystem/BaseMenu.h"
 
 #include "GameMenu.generated.h"
 

@@ -24,7 +24,7 @@ public:
 
 	const FString& MainMenuBPClassReference = TEXT("/Game/MenuSystem/WBP_MainMenu");
 	const FString& GameMenuWBPClassReference = TEXT("/Game/MenuSystem/WBP_GameMenu");
-	const FString& MainMenuLevelTravelUrl = TEXT("/Game/MenuSystem/MainMenu.MainMenu");
+	const FString& MainMenuLevelTravelUrl = TEXT("/Game/MenuSystem/MainMenu");
 
 	UPROPERTY()
 	class UMainMenu* WBP_MainMenu;
@@ -37,6 +37,9 @@ public:
 
 	UFUNCTION(Exec, BlueprintCallable)
 	void LoadGameMenu();
+
+	UFUNCTION(Exec, BlueprintCallable)
+	void DestroyGameMenu();
 	
 	// IMenuInterface implementation.
 	UFUNCTION(Exec)
@@ -47,6 +50,12 @@ public:
 
 	UFUNCTION(Exec)
 	virtual void ReturnToMainMenu();
+
+	UFUNCTION()
+	virtual void ExitGame() override;
+
+	UFUNCTION()
+	void NetworkError(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
 
 private:
 	UPROPERTY(EditDefaultsOnly)

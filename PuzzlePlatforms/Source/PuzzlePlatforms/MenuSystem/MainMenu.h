@@ -18,6 +18,10 @@ class PUZZLEPLATFORMS_API UMainMenu : public UBaseMenu
 public:
 	virtual bool Initialize() override;
 
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UServerLine> ServerLineWidgetClass;
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* HostButton;
@@ -35,10 +39,10 @@ private:
 	UButton* ExitButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UWidgetSwitcher* MenuSwitcher;
+	class UScrollBox* ServerListScrollBox;
 
 	UPROPERTY(meta = (BindWidget))
-	class UEditableTextBox* IPAddressField;
+	class UWidgetSwitcher* MenuSwitcher;
 
 	UPROPERTY(meta = (BindWidget))
 	UWidget* JoinMenu;
@@ -60,5 +64,8 @@ private:
 
 	UFUNCTION()
 	void ExitGame();
+
+	UFUNCTION()
+	void AddServerLine(const FText ServerIn);
 	
 };

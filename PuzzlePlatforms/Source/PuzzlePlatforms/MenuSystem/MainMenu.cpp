@@ -4,7 +4,9 @@
 
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
-#include "Components/EditableTextBox.h"
+#include "Components/ScrollBox.h"
+
+#include "ServerLine.h"
 
 bool UMainMenu::Initialize()
 {
@@ -54,11 +56,16 @@ void UMainMenu::OpenMainMenu()
 
 void UMainMenu::JoinGame()
 {
+	/*
 	if (!ensure(IPAddressField)) return;
 	if (MenuInterface)
 	{
 		MenuInterface->JoinGame(IPAddressField->GetText().ToString());
 	}
+	*/
+
+	AddServerLine(FText::FromString("I am a server!"));
+
 }
 
 void UMainMenu::ExitGame()
@@ -67,4 +74,23 @@ void UMainMenu::ExitGame()
 	{
 		MenuInterface->ExitGame();
 	}
+}
+
+void UMainMenu::AddServerLine(const FText ServerIn)
+{
+	if (!ensure(ServerLineWidgetClass)) return;
+	if (!ensure(ServerListScrollBox)) return;
+	
+	UWorld* World = GetWorld();
+	if (!ensure(World)) return;
+
+
+
+	UServerLine* NewServerLine = CreateWidget<UServerLine>(World, ServerLineWidgetClass);
+	if (!ensure(NewServerLine)) return;
+
+	NewServerLine->SetAddress(ServerIn);
+
+	ServerListScrollBox->AddChild(NewServerLine);
+	
 }

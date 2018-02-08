@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "OnlineSubsystem.h"
 
 #include "MenuSystem/MenuInterface.h"
 
@@ -63,6 +64,11 @@ private:
 
 	UPROPERTY()
 	TSoftClassPtr<UUserWidget> GameMenuWBPClass;
+
+	IOnlineSessionPtr SessionInterface;
+
+	UFUNCTION()
+	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 
 
 	

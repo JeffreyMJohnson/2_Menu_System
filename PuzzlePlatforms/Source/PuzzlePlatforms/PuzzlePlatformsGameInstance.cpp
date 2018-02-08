@@ -34,22 +34,13 @@ void UPuzzlePlatformsGameInstance::Init()
 	
 	Engine->NetworkFailureEvent.AddUObject(this, &UPuzzlePlatformsGameInstance::NetworkError);
 
-	//OnlineSubSystemSteam = Cast<FOnlineSubsystemSteam>(IOnlineSubsystem::Get("Steam"));
 	IOnlineSubsystem* IOS = IOnlineSubsystem::Get();
 	FString result = IOS == nullptr ? TEXT("nullptr") : IOS->GetSubsystemName().ToString();
 	UE_LOG(LogTemp, Warning, TEXT("Online subsystem returned %s"), *result);
 	if (IOS)
 	{
-		auto SessionInterface = IOS->GetSessionInterface();
-		if (SessionInterface.IsValid())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("session interface returned"));
-		}
-		
+		SessionInterface = IOS->GetSessionInterface();
 	}
-
-	
-	
 }
 
 void UPuzzlePlatformsGameInstance::LoadMainMenu()
@@ -87,16 +78,15 @@ void UPuzzlePlatformsGameInstance::DestroyGameMenu()
 
 void UPuzzlePlatformsGameInstance::HostGame()
 {
-	if (GEngine)
+	
+	if (SessionInterface.IsValid())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Hosting..."));
-		
-		if (UWorld* World = GetWorld())
-		{
-			World->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen"), true, false);
-		}
-	}
-		
+		// Create new session
+		FOnlineSessionSettings SessionSettings;
+
+		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
+		SessionInterface->CreateSession(0, "My Session", SessionSettings);
+	}		
 }
 
 
@@ -130,6 +120,27 @@ void UPuzzlePlatformsGameInstance::ReturnToMainMenu()
 void UPuzzlePlatformsGameInstance::NetworkError(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
 {
 	ReturnToMainMenu();
+}
+
+
+void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Hosting..."));
+
+			if (UWorld* World = GetWorld())
+			{
+				World->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen"), true, false);
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create a session."));
+	}
 }
 
 void UPuzzlePlatformsGameInstance::ExitGame()

@@ -5,6 +5,7 @@
 #include "Engine/Engine.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Online.h"
+#include "OnlineSessionSettings.h"
 
 #include "MenuSystem/MainMenu.h"
 #include "MenuSystem/GameMenu.h"
@@ -40,6 +41,19 @@ void UPuzzlePlatformsGameInstance::Init()
 	if (IOS)
 	{
 		SessionInterface = IOS->GetSessionInterface();
+		if (SessionInterface.IsValid())
+		{
+			SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
+			SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnDestroySessionComplete);
+			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnFindSessionsComplete);
+
+			SessionSearch = MakeShareable(new FOnlineSessionSearch());
+			if (SessionSearch.IsValid())
+			{
+				SessionSearch->bIsLanQuery = true;
+				SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+			}
+		}
 	}
 }
 
@@ -81,11 +95,17 @@ void UPuzzlePlatformsGameInstance::HostGame()
 	
 	if (SessionInterface.IsValid())
 	{
-		// Create new session
-		FOnlineSessionSettings SessionSettings;
-
-		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformsGameInstance::OnCreateSessionComplete);
-		SessionInterface->CreateSession(0, "My Session", SessionSettings);
+		// Close session if already exists. Return because need to wait for complete callback which will call this method again.
+		if (FNamedOnlineSession* NamedSession = SessionInterface->GetNamedSession(SESSION_NAME))
+		{
+			SessionInterface->DestroySession(SESSION_NAME);
+			return;
+		}
+		else
+		{
+			//otherwise create new one.
+			CreateSession();
+		}
 	}		
 }
 
@@ -140,6 +160,55 @@ void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(FName SessionName, bo
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to create a session."));
+	}
+}
+
+
+void UPuzzlePlatformsGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		CreateSession();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to destroy session [%s]"), *SessionName.ToString());
+	}
+	
+}
+
+
+void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		if (SessionSearch.IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Found %d sessions:"), SessionSearch->SearchResults.Num());
+
+			for (auto result : SessionSearch->SearchResults)
+			{
+				FString SessionId = result.GetSessionIdStr();
+				UE_LOG(LogTemp, Warning, TEXT("session Id: %s"), *SessionId);
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Finding sessions failed."));
+	}
+}
+
+void UPuzzlePlatformsGameInstance::CreateSession()
+{
+	if (SessionInterface.IsValid())
+	{
+		// Create new session
+		FOnlineSessionSettings SessionSettings;
+		SessionSettings.bIsLANMatch = true;
+		SessionSettings.NumPublicConnections = 2;
+		SessionSettings.bShouldAdvertise = true;
+		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
 }
 

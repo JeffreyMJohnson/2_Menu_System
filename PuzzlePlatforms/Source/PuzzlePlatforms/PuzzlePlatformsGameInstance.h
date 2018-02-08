@@ -26,6 +26,7 @@ public:
 	const FString& MainMenuBPClassReference = TEXT("/Game/MenuSystem/WBP_MainMenu");
 	const FString& GameMenuWBPClassReference = TEXT("/Game/MenuSystem/WBP_GameMenu");
 	const FString& MainMenuLevelTravelUrl = TEXT("/Game/MenuSystem/MainMenu");
+	const FName& SESSION_NAME = TEXT("My Session");
 
 	UPROPERTY()
 	class UMainMenu* WBP_MainMenu;
@@ -67,9 +68,19 @@ private:
 
 	IOnlineSessionPtr SessionInterface;
 
+	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
+
 	UFUNCTION()
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 
+	UFUNCTION()
+	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
+
+	UFUNCTION()
+	void OnFindSessionsComplete(bool bWasSuccessful);
+
+	UFUNCTION()
+	void CreateSession();
 
 	
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "OnlineSubsystem.h"
+#include "OnlineSessionInterface.h"
 
 #include "MenuSystem/MenuInterface.h"
 
@@ -48,13 +49,16 @@ public:
 	virtual void HostGame() override;
 
 	UFUNCTION(Exec)
-	virtual void JoinGame(const FString& IPAddress) override;
+	virtual void JoinGame(uint32 Indexn) override;
 
 	UFUNCTION(Exec)
 	virtual void ReturnToMainMenu();
 
 	UFUNCTION()
 	virtual void ExitGame() override;
+
+	UFUNCTION()
+	virtual void RefreshServerList() override;
 
 	UFUNCTION()
 	void NetworkError(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
@@ -70,14 +74,11 @@ private:
 
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
 
-	UFUNCTION()
+
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
-
-	UFUNCTION()
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
-
-	UFUNCTION()
 	void OnFindSessionsComplete(bool bWasSuccessful);
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 	UFUNCTION()
 	void CreateSession();

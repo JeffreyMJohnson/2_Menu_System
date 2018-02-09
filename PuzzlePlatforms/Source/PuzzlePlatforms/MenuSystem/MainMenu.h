@@ -17,6 +17,11 @@ class PUZZLEPLATFORMS_API UMainMenu : public UBaseMenu
 	GENERATED_BODY()
 public:
 	virtual bool Initialize() override;
+	UFUNCTION()
+	void SetServerList(TArray<FString>& ServerNames);
+
+	UFUNCTION()
+	void SelectIndex(uint32 Index);
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
@@ -49,6 +54,8 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UWidget* MainMenu;
+
+	TOptional<uint32> SelectedIndex;
 	
 	UFUNCTION()
 	void HostServer();
@@ -66,6 +73,6 @@ private:
 	void ExitGame();
 
 	UFUNCTION()
-	void AddServerLine(const FText ServerIn);
+	void AddServerLine(UWorld* World, const FText ServerIn, uint32 Index);
 	
 };

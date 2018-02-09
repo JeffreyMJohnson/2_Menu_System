@@ -42,6 +42,12 @@ void UMainMenu::OpenJoinMenu()
 {
 	if (!ensure(MenuSwitcher)) return;
 	if (!ensure(JoinMenu)) return;
+	if (!ensure(MenuInterface)) return;
+	if (!ensure(ServerListScrollBox)) return;
+
+	ServerListScrollBox->ClearChildren();
+
+	MenuInterface->RefreshServerList();
 
 	MenuSwitcher->SetActiveWidget(JoinMenu);
 }
@@ -54,18 +60,39 @@ void UMainMenu::OpenMainMenu()
 	MenuSwitcher->SetActiveWidget(MainMenu);
 }
 
+void UMainMenu::SetServerList(TArray<FString>& ServerNames)
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World)) return;
+
+	if (!ensure(ServerListScrollBox)) return;
+
+	ServerListScrollBox->ClearChildren();
+
+	uint32 CurrentIndex = 0;
+	for (FString& ServerName : ServerNames)
+	{
+		AddServerLine(World, FText::FromString(ServerName), CurrentIndex);
+		++CurrentIndex;
+	}
+}
+
+void UMainMenu::SelectIndex(uint32 Index)
+{
+	SelectedIndex = Index;
+}
+
 void UMainMenu::JoinGame()
 {
-	/*
-	if (!ensure(IPAddressField)) return;
-	if (MenuInterface)
+	if (SelectedIndex.IsSet() && MenuInterface)
 	{
-		MenuInterface->JoinGame(IPAddressField->GetText().ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Selected index is %d."), SelectedIndex.GetValue());
+		MenuInterface->JoinGame(SelectedIndex.GetValue());
 	}
-	*/
-
-	AddServerLine(FText::FromString("I am a server!"));
-
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Selected index is not set."));
+	}	
 }
 
 void UMainMenu::ExitGame()
@@ -76,21 +103,21 @@ void UMainMenu::ExitGame()
 	}
 }
 
-void UMainMenu::AddServerLine(const FText ServerIn)
+void UMainMenu::AddServerLine(UWorld* World, const FText ServerIn, uint32 Index)
 {
 	if (!ensure(ServerLineWidgetClass)) return;
 	if (!ensure(ServerListScrollBox)) return;
 	
-	UWorld* World = GetWorld();
-	if (!ensure(World)) return;
+	if (World)
+	{
+		UServerLine* NewServerLine = CreateWidget<UServerLine>(World, ServerLineWidgetClass);
+		if (!ensure(NewServerLine)) return;
 
+		NewServerLine->SetAddress(ServerIn);
+		NewServerLine->Setup(this, Index);
 
+		ServerListScrollBox->AddChild(NewServerLine);
+	}
 
-	UServerLine* NewServerLine = CreateWidget<UServerLine>(World, ServerLineWidgetClass);
-	if (!ensure(NewServerLine)) return;
-
-	NewServerLine->SetAddress(ServerIn);
-
-	ServerListScrollBox->AddChild(NewServerLine);
 	
 }

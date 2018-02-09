@@ -5,6 +5,8 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 
+#include "MainMenu.h"
+
 
 
 void UServerLine::SetAddress(const FText& AddressIn)
@@ -17,4 +19,22 @@ const FText UServerLine::GetAddress()
 {
 	if (!ensure(AddressText)) return FText();
 	return AddressText->Text;
+}
+
+void UServerLine::Setup(class UMainMenu* Parent, uint32 Index)
+{
+	this->Parent = Parent;
+	this->Index = Index;
+
+	if (!ensure(AddressButton)) return;
+
+	AddressButton->OnClicked.AddDynamic(this, &UServerLine::HandleOnClick);
+}
+
+void UServerLine::HandleOnClick()
+{
+	if (Parent)
+	{
+		Parent->SelectIndex(Index);
+	}
 }

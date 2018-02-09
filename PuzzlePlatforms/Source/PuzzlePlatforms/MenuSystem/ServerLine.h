@@ -15,9 +15,10 @@ class PUZZLEPLATFORMS_API UServerLine : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	//virtual bool Initialize() override;
 	void SetAddress(const FText& AddressIn);
 	const FText GetAddress();
+
+	void Setup(class UMainMenu* Parent, uint32 Index);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -25,5 +26,11 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* AddressText;
-	
+
+	UPROPERTY()
+	UMainMenu* Parent;
+	uint32 Index = 0;
+
+	UFUNCTION()
+	void HandleOnClick();
 };

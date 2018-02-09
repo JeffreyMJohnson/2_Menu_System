@@ -262,9 +262,10 @@ void UPuzzlePlatformsGameInstance::CreateSession()
 	{
 		// Create new session
 		FOnlineSessionSettings SessionSettings;
-		SessionSettings.bIsLANMatch = true;
+		SessionSettings.bIsLANMatch = false;
 		SessionSettings.NumPublicConnections = 4;
 		SessionSettings.bShouldAdvertise = true;
+		SessionSettings.bUsesPresence = true;
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
 }
@@ -287,7 +288,10 @@ void UPuzzlePlatformsGameInstance::RefreshServerList()
 		SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		if (SessionSearch.IsValid())
 		{
-			SessionSearch->bIsLanQuery = true;
+			//SessionSearch->bIsLanQuery = true;
+			SessionSearch->QuerySettings.Set<bool>(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+			// need this because using the default test app steam ID, mucho lobbies can be returned.
+			SessionSearch->MaxSearchResults = 1000;
 			SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 		}
 	}

@@ -197,6 +197,7 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 			FString SessionId = result.GetSessionIdStr();
 			ServerNames.Add(SessionId);
 			}
+
 			WBP_MainMenu->SetServerList(ServerNames);
 		}
 	}

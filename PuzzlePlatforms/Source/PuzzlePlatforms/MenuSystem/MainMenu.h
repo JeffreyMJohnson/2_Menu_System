@@ -74,5 +74,7 @@ private:
 
 	UFUNCTION()
 	void AddServerLine(UWorld* World, const FText ServerIn, uint32 Index);
+
+	void UpdateRows();
 	
 };

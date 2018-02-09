@@ -15,6 +15,9 @@ class PUZZLEPLATFORMS_API UServerLine : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsSelected = false;
+
 	void SetAddress(const FText& AddressIn);
 	const FText GetAddress();
 

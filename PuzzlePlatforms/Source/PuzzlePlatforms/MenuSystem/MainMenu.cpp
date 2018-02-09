@@ -80,6 +80,7 @@ void UMainMenu::SetServerList(TArray<FString>& ServerNames)
 void UMainMenu::SelectIndex(uint32 Index)
 {
 	SelectedIndex = Index;
+	UpdateRows();
 }
 
 void UMainMenu::JoinGame()
@@ -120,4 +121,19 @@ void UMainMenu::AddServerLine(UWorld* World, const FText ServerIn, uint32 Index)
 	}
 
 	
+}
+
+void UMainMenu::UpdateRows()
+{
+	if (!ensure(ServerListScrollBox)) return;
+
+	for (int i = 0; i < ServerListScrollBox->GetChildrenCount(); ++i)
+	{
+		UServerLine* Row = Cast<UServerLine>(ServerListScrollBox->GetChildAt(i));
+		if (Row)
+		{
+			// SelectedIndex is not set when menu is loaded and nothing clicked yet.
+			Row->bIsSelected = (SelectedIndex.IsSet() && i == SelectedIndex.GetValue());
+		}
+	}
 }

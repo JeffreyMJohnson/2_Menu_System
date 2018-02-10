@@ -60,7 +60,7 @@ void UMainMenu::OpenMainMenu()
 	MenuSwitcher->SetActiveWidget(MainMenu);
 }
 
-void UMainMenu::SetServerList(TArray<FString>& ServerNames)
+void UMainMenu::SetServerList(TArray<FServerData>& ServerData)
 {
 	UWorld* World = GetWorld();
 	if (!ensure(World)) return;
@@ -70,9 +70,9 @@ void UMainMenu::SetServerList(TArray<FString>& ServerNames)
 	ServerListScrollBox->ClearChildren();
 
 	uint32 CurrentIndex = 0;
-	for (FString& ServerName : ServerNames)
+	for (FServerData& Data : ServerData)
 	{
-		AddServerLine(World, FText::FromString(ServerName), CurrentIndex);
+		AddServerLine(World, Data, CurrentIndex);
 		++CurrentIndex;
 	}
 }
@@ -104,7 +104,7 @@ void UMainMenu::ExitGame()
 	}
 }
 
-void UMainMenu::AddServerLine(UWorld* World, const FText ServerIn, uint32 Index)
+void UMainMenu::AddServerLine(UWorld* World, const FServerData& Data, uint32 Index)
 {
 	if (!ensure(ServerLineWidgetClass)) return;
 	if (!ensure(ServerListScrollBox)) return;
@@ -114,7 +114,9 @@ void UMainMenu::AddServerLine(UWorld* World, const FText ServerIn, uint32 Index)
 		UServerLine* NewServerLine = CreateWidget<UServerLine>(World, ServerLineWidgetClass);
 		if (!ensure(NewServerLine)) return;
 
-		NewServerLine->SetAddress(ServerIn);
+		NewServerLine->SetAddress(FText::FromString(Data.Name));
+		NewServerLine->SetNumPlayers(Data.CurrentPlayers, Data.MaxPlayers);
+
 		NewServerLine->Setup(this, Index);
 
 		ServerListScrollBox->AddChild(NewServerLine);

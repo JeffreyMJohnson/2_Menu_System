@@ -8,6 +8,25 @@
 
 #include "MainMenu.generated.h"
 
+USTRUCT()
+struct FServerData
+{
+	GENERATED_BODY()
+
+	FString Name;
+	uint16 CurrentPlayers;
+	uint16 MaxPlayers;
+	FString HostUserName;
+
+	FServerData()
+	{
+		Name = "";
+		CurrentPlayers = 0;
+		MaxPlayers = 0;
+		HostUserName = "";
+	}
+};
+
 /**
  * 
  */
@@ -18,7 +37,7 @@ class PUZZLEPLATFORMS_API UMainMenu : public UBaseMenu
 public:
 	virtual bool Initialize() override;
 	UFUNCTION()
-	void SetServerList(TArray<FString>& ServerNames);
+	void SetServerList(TArray<FServerData>& ServerData);
 
 	UFUNCTION()
 	void SelectIndex(uint32 Index);
@@ -73,7 +92,7 @@ private:
 	void ExitGame();
 
 	UFUNCTION()
-	void AddServerLine(UWorld* World, const FText ServerIn, uint32 Index);
+	void AddServerLine(UWorld* World, const FServerData& Data, uint32 Index);
 
 	void UpdateRows();
 	

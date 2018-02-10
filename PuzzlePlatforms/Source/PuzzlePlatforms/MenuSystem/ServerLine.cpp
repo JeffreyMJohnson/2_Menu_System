@@ -15,6 +15,14 @@ void UServerLine::SetAddress(const FText& AddressIn)
 	AddressText->Text = AddressIn;
 }
 
+void UServerLine::SetNumPlayers(const uint16 NumPlayers, const uint16 MaxPlayers)
+{
+	if (!ensure(NumPlayersText)) return;
+
+	FString Formatted = FString::Printf(TEXT("%d / %d"), NumPlayers, MaxPlayers);
+	NumPlayersText->SetText(FText::FromString(Formatted));
+}
+
 const FText UServerLine::GetAddress()
 {
 	if (!ensure(AddressText)) return FText();

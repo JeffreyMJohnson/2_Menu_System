@@ -18,8 +18,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsSelected = false;
 
-	void SetAddress(const FText& AddressIn);
-	void SetNumPlayers(const uint16 NumPlayers, const uint16 MaxPlayers);
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* ServerNameText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* HostNameText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* NumPlayersText;
 
 	const FText GetAddress();
 
@@ -29,11 +35,11 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* AddressButton;
 	
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* AddressText;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* NumPlayersText;
+
+
+
+
 
 	UPROPERTY()
 	UMainMenu* Parent;

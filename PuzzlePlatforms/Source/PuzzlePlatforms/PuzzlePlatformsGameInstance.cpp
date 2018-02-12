@@ -13,7 +13,12 @@
 
 #include "PlatformTrigger.h"
 
-
+const FString& MainMenuBPClassReference = TEXT("/Game/MenuSystem/WBP_MainMenu");
+const FString& GameMenuWBPClassReference = TEXT("/Game/MenuSystem/WBP_GameMenu");
+const FString& MainMenuLevelTravelUrl = TEXT("/Game/MenuSystem/MainMenu");
+//work around for issue with LAN games not reporting player count correctly.
+const FName& SESSION_NAME = NAME_GameSession; 
+const FName& HOST_SERVER_NAME_KEY = TEXT("HostServerKey");
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -85,7 +90,7 @@ void UPuzzlePlatformsGameInstance::DestroyGameMenu()
 	}
 }
 
-void UPuzzlePlatformsGameInstance::HostGame()
+void UPuzzlePlatformsGameInstance::HostGame(const FString& HostServerName)
 {
 	
 	if (SessionInterface.IsValid())
@@ -93,15 +98,17 @@ void UPuzzlePlatformsGameInstance::HostGame()
 		// Close session if already exists. Return because need to wait for complete callback which will call this method again.
 		if (FNamedOnlineSession* NamedSession = SessionInterface->GetNamedSession(SESSION_NAME))
 		{
+			//Cache the server name for when the callback is ran
+			ServerName = HostServerName;
 			SessionInterface->DestroySession(SESSION_NAME);
 			return;
 		}
 		else
 		{
 			//otherwise create new one.
-			CreateSession();
+			CreateSession(HostServerName);
 		}
-	}		
+	}
 }
 
 
@@ -146,6 +153,13 @@ void UPuzzlePlatformsGameInstance::NetworkError(UWorld* World, UNetDriver* NetDr
 }
 
 
+void UPuzzlePlatformsGameInstance::StartSession()
+{
+	if (!ensure(SessionInterface.IsValid())) return;
+
+	SessionInterface->StartSession(SESSION_NAME);
+}
+
 void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	if (bWasSuccessful)
@@ -156,7 +170,7 @@ void UPuzzlePlatformsGameInstance::OnCreateSessionComplete(FName SessionName, bo
 
 			if (UWorld* World = GetWorld())
 			{
-				World->ServerTravel(TEXT("/Game/ThirdPersonCPP/Maps/ThirdPersonExampleMap?listen"), true, false);
+				World->ServerTravel(TEXT("/Game/PuzzlePlatforms/Maps/Lobby?listen"), true, false);
 			}
 		}
 	}
@@ -171,13 +185,13 @@ void UPuzzlePlatformsGameInstance::OnDestroySessionComplete(FName SessionName, b
 {
 	if (bWasSuccessful)
 	{
-		CreateSession();
+		CreateSession(ServerName);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to destroy session [%s]"), *SessionName.ToString());
 	}
-	
+
 }
 
 
@@ -196,7 +210,18 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 			{
 				FServerData NewServer;
 
-				NewServer.Name = result.Session.GetSessionIdStr();
+				//use custom setting
+				FString ServerName;
+				if (result.Session.SessionSettings.Get(HOST_SERVER_NAME_KEY, ServerName))
+				{
+					NewServer.Name = ServerName;
+				}
+				else
+				{
+					NewServer.Name = result.Session.GetSessionIdStr();
+					UE_LOG(LogTemp, Warning, TEXT("Failed to get server name from session settings. Using SessionId."));
+				}
+
 				NewServer.HostUserName = result.Session.OwningUserName;
 				NewServer.MaxPlayers = result.Session.SessionSettings.NumPublicConnections;
 				NewServer.CurrentPlayers = result.Session.NumOpenPublicConnections;
@@ -245,25 +270,7 @@ void UPuzzlePlatformsGameInstance::OnJoinSessionComplete(FName SessionName, EOnJ
 	}
 }
 
-/*
-void UPuzzlePlatformsGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
-{
-	
-	/*if (GEngine)
-	{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Connecting to %s"), *IPAddress));
-
-	UWorld* World = GetWorld();
-	if (!ensure(World)) return;
-
-	if (APlayerController* PC = World->GetFirstPlayerController())
-	{
-	PC->ClientTravel(IPAddress, ETravelType::TRAVEL_Absolute);
-	}
-	}*/
-//}
-//*/
-void UPuzzlePlatformsGameInstance::CreateSession()
+void UPuzzlePlatformsGameInstance::CreateSession(const FString& HostServerName)
 {
 	if (SessionInterface.IsValid())
 	{
@@ -273,9 +280,13 @@ void UPuzzlePlatformsGameInstance::CreateSession()
 		bool bUsingNullSubsystem = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL";
 		SessionSettings.bIsLANMatch = bUsingNullSubsystem;
 
-		SessionSettings.NumPublicConnections = 4;
+		SessionSettings.NumPublicConnections = 5;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
+
+		//custom setting
+		SessionSettings.Set(HOST_SERVER_NAME_KEY, HostServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
 }

@@ -24,11 +24,6 @@ public:
 
 	virtual void Init() override;
 
-	const FString& MainMenuBPClassReference = TEXT("/Game/MenuSystem/WBP_MainMenu");
-	const FString& GameMenuWBPClassReference = TEXT("/Game/MenuSystem/WBP_GameMenu");
-	const FString& MainMenuLevelTravelUrl = TEXT("/Game/MenuSystem/MainMenu");
-	const FName& SESSION_NAME = TEXT("My Session");
-
 	UPROPERTY()
 	class UMainMenu* WBP_MainMenu;
 
@@ -46,7 +41,7 @@ public:
 	
 	// IMenuInterface implementation.
 	UFUNCTION(Exec)
-	virtual void HostGame() override;
+	virtual void HostGame(const FString& HostServerName) override;
 
 	UFUNCTION(Exec)
 	virtual void JoinGame(uint32 Indexn) override;
@@ -63,6 +58,9 @@ public:
 	UFUNCTION()
 	void NetworkError(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
 
+	UFUNCTION()
+	void StartSession();
+
 private:
 	UPROPERTY(EditDefaultsOnly)
 	TSoftClassPtr<UUserWidget> MainMenuBPClass;
@@ -74,6 +72,9 @@ private:
 
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
 
+	UPROPERTY()
+	FString ServerName;
+
 
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
@@ -81,7 +82,8 @@ private:
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 	UFUNCTION()
-	void CreateSession();
+	void CreateSession(const FString& HostServerName);
 
+	
 	
 };

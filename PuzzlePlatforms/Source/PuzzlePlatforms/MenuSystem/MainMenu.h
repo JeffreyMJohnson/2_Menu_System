@@ -48,22 +48,31 @@ protected:
 
 private:
 	UPROPERTY(meta = (BindWidget))
-	class UButton* HostButton;
+	class UButton* HostMenuButton;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* JoinMenuButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* CancelButton;
+	UButton* CancelJoinButton;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* JoinGameButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* CancelHostButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* HostGameButton;
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* ExitButton;
 
 	UPROPERTY(meta = (BindWidget))
 	class UScrollBox* ServerListScrollBox;
+
+	UPROPERTY(meta = (BindWidget))
+	class UEditableTextBox* HostServerNameText;
 
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher;
@@ -73,6 +82,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UWidget* MainMenu;
+
+	UPROPERTY(meta = (BindWidget))
+	UWidget* HostMenu;
 
 	TOptional<uint32> SelectedIndex;
 	
@@ -84,6 +96,9 @@ private:
 
 	UFUNCTION()
 	void OpenMainMenu();
+
+	UFUNCTION()
+	void OpenHostMenu();
 
 	UFUNCTION()
 	void JoinGame();
